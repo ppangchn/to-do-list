@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Checkbox, Button } from 'antd';
+import { List, Checkbox as ACheckbox, Button } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import InputText from './InputText';
@@ -7,6 +7,11 @@ import InputText from './InputText';
 const Item = styled.div`
 	display: flex;
 	margin: 0 20px;
+`;
+
+const Checkbox = styled(ACheckbox)`
+	display: flex !important;
+	align-items: center !important;
 `;
 
 const TodoListItem = ({ item, index, length, handleComplete, handleChange, handleAddItem }) => (
