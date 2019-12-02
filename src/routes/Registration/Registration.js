@@ -44,7 +44,10 @@ const Registration = props => {
 					});
 					if (user) props.history.push('/');
 				} catch (error) {
-					message.error(`${error}`);
+					message.error(
+						error.graphQLErrors.map(({ message }, i) => <span key={i}>{message}</span>),
+						3
+					);
 				}
 			}
 		});

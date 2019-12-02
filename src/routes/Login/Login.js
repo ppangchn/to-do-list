@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form as AForm, Icon, Input, Button, Checkbox } from 'antd';
+import { Form as AForm, Icon, Input, Button, message } from 'antd';
 import styled from 'styled-components';
 import { withRouter } from 'react-router-dom';
 import { LOGIN } from '../../graphql/mutation/User.mutation';
@@ -28,11 +28,17 @@ const Login = props => {
 		e.preventDefault();
 		props.form.validateFields(async (err, values) => {
 			if (!err) {
-				const user = await login({ variables: { ...values } });
-				if (user) {
-					console.log('user', user);
-					const { id } = user.data.login;
-					props.history.push(`/todolist/${id}`);
+				try {
+					const user = await login({ variables: { ...values } });
+					if (user) {
+						const { id } = user.data.login;
+						props.history.push(`/todolist/${id}`);
+					}
+				} catch (error) {
+					message.error(
+						error.graphQLErrors.map(({ message }, i) => <span key={i}>{message}</span>),
+						3
+					);
 				}
 			}
 		});

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu as AMenu, Icon } from 'antd';
+import { Menu as AMenu } from 'antd';
 import PropTypes from 'prop-types';
 
 const Menu = ({ selectedKeys, menuItems, handleSelect }) => {

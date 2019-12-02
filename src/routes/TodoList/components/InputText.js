@@ -11,30 +11,109 @@ const StyledInputText = styled(Input)`
 	padding: 0 5px;
 `;
 
-const InputText = ({ index, value, onChange }) => {
-	const app = new PIXI.Application({ width: 80, height: 20, backgroundColor: 0xffffff });
-	const style = new PIXI.TextStyle({
-		fontFamily: 'Arial',
-		fontSize: 16,
-		fill: ['#003EA8', '#005BF6'], // gradient
-		stroke: '#000000',
-		strokeThickness: 2,
-		wordWrap: true,
-		wordWrapWidth: 440,
-	});
-
+const InputText = ({ index, showInput, value, onChange }) => {
+	const app = new PIXI.Application({ width: 1500, height: 25, backgroundColor: 0xffffff });
 	useEffect(() => {
 		const input = document.getElementById(`todo-list-item-${index}`).childNodes[1];
-		console.log('input', input);
-		if (input) console.log('parent', input.parentNode);
-		if (input) input.parentNode.replaceChild(app.view, input);
+		if (input && !showInput) input.parentNode.replaceChild(app.view, input);
+		addTextInput();
+		addMouseTrail();
 	});
 
-	const basicText = new PIXI.Text(value, style);
-	basicText.x = 8;
-	basicText.y = 1;
+	const addTextInput = () => {
+		const style = new PIXI.TextStyle({
+			fontFamily: 'Helvetica',
+			fontSize: 16,
+			fill: ['#003EA8', '#005BF6'],
+			letterSpacing: 2,
+		});
+		const basicText = new PIXI.Text(value, style);
+		basicText.x = 8;
+		basicText.y = 1;
 
-	app.stage.addChild(basicText);
+		app.stage.addChild(basicText);
+	};
+
+	const addMouseTrail = () => {
+		// Get the texture for rope.
+		const trailTexture = PIXI.Texture.from('/snake.png');
+		const historyX = [];
+		const historyY = [];
+		// historySize determines how long the trail will be.
+		const historySize = 20;
+		// ropeSize determines how smooth the trail will be.
+		const ropeSize = 200;
+		const points = [];
+
+		// Create history array.
+		for (let i = 0; i < historySize; i++) {
+			historyX.push(0);
+			historyY.push(0);
+		}
+		// Create rope points.
+		for (let i = 0; i < ropeSize; i++) {
+			points.push(new PIXI.Point(0, 0));
+		}
+
+		// Create the rope
+		const rope = new PIXI.SimpleRope(trailTexture, points);
+
+		// Set the blendmode
+		rope.blendmode = PIXI.BLEND_MODES.ADD;
+
+		app.stage.addChild(rope);
+
+		// Listen for animate update
+		app.ticker.add(delta => {
+			// Read mouse points, this could be done also in mousemove/touchmove update. For simplicity it is done here for now.
+			// When implementing this properly, make sure to implement touchmove as interaction plugins mouse might not update on certain devices.
+			const mouseposition = app.renderer.plugins.interaction.mouse.global;
+
+			// Update the mouse values to history
+			historyX.pop();
+			historyX.unshift(mouseposition.x);
+			historyY.pop();
+			historyY.unshift(mouseposition.y);
+			// Update the points to correspond with history.
+			for (let i = 0; i < ropeSize; i++) {
+				const p = points[i];
+
+				// Smooth the curve with cubic interpolation to prevent sharp edges.
+				const ix = cubicInterpolation(historyX, (i / ropeSize) * historySize);
+				const iy = cubicInterpolation(historyY, (i / ropeSize) * historySize);
+
+				p.x = ix;
+				p.y = iy;
+			}
+		});
+	};
+
+	const clipInput = (k, arr) => {
+		if (k < 0) k = 0;
+		if (k > arr.length - 1) k = arr.length - 1;
+		return arr[k];
+	};
+
+	const getTangent = (k, factor, array) => {
+		return (factor * (clipInput(k + 1, array) - clipInput(k - 1, array))) / 2;
+	};
+
+	const cubicInterpolation = (array, t, tangentFactor) => {
+		if (tangentFactor == null) tangentFactor = 1;
+
+		const k = Math.floor(t);
+		const m = [getTangent(k, tangentFactor, array), getTangent(k + 1, tangentFactor, array)];
+		const p = [clipInput(k, array), clipInput(k + 1, array)];
+		t -= k;
+		const t2 = t * t;
+		const t3 = t * t2;
+		return (
+			(2 * t3 - 3 * t2 + 1) * p[0] +
+			(t3 - 2 * t2 + t) * m[0] +
+			(-2 * t3 + 3 * t2) * p[1] +
+			(t3 - t2) * m[1]
+		);
+	};
 
 	return <StyledInputText id={`input-text-${index}`} value={value} onChange={onChange} />;
 };

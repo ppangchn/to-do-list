@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import Login from './Login';
 import Registration from './Registration';
 import TodoList from './TodoList';
@@ -15,6 +15,13 @@ const Routes = () => (
 			</Route>
 			<Route path="/todolist/:id" components={TodoList}>
 				<TodoList />
+			</Route>
+			<Route path="/todolist">
+				<Redirect
+					to={{
+						pathname: '/',
+					}}
+				/>
 			</Route>
 		</Switch>
 	</Router>

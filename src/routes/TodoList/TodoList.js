@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, Checkbox, Button } from 'antd';
+import { List, message } from 'antd';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { useQuery, useMutation } from '@apollo/react-hooks';
@@ -20,27 +20,44 @@ const Title = styled.div`
 const TodoList = props => {
 	const { id } = props.match.params;
 
-	const { data = {}, loading: fetchUserLoading } = useQuery(GET_USER_DETAIL, {
-		variables: { where: { id } },
-	});
+	const { data = {}, loading: fetchUserLoading, error: fetchUserError } = useQuery(
+		GET_USER_DETAIL,
+		{
+			variables: { where: { id } },
+		}
+	);
 	const [createTodoListItemByUser, { loading }] = useMutation(CREATE_TODOLIST_ITEM_BY_USER);
 
 	const { user = {} } = data;
 
-	console.log('user', user);
+	if (!user) props.history.push('/');
+
+	if (fetchUserError) {
+		message.error(
+			fetchUserError.graphQLErrors.map(({ message }, i) => <span key={i}>{message}</span>),
+			3
+		);
+		props.history.push('/');
+	}
 
 	const [todoList, setTodoList] = useState([{ description: '', isCompleted: false }]);
 	const [selectedMenuKey, setSelectedMenuKey] = useState(['all']);
 
 	useEffect(() => {
-		const todoList = user.todoList ? user.todoList : [{ description: '', isCompleted: false }];
-		todoList.push({ description: '', isCompleted: false });
-		setTodoList(todoList);
+		if (user) {
+			const todoList = user.todoList
+				? [...user.todoList, { description: '', isCompleted: false }]
+				: [{ description: '', isCompleted: false }];
+			setTodoList(todoList);
+		}
 	}, [fetchUserLoading]);
 
 	const handleAddItem = async item => {
 		try {
-			await createTodoListItemByUser({ variables: { data: { ...item }, userId: user.id } });
+			const { description, isCompleted } = item;
+			await createTodoListItemByUser({
+				variables: { data: { description, isCompleted }, userId: user.id },
+			});
 			const changedTodoList = new Array(...todoList);
 			changedTodoList.push({ description: '', isCompleted: false });
 			setTodoList(changedTodoList);
@@ -66,7 +83,7 @@ const TodoList = props => {
 		const { isCompleted } = todoList[index];
 		const changedItem = todoList.filter((todoItem, i) => i === index)[0];
 		const result = { ...changedItem, isCompleted: !isCompleted };
-		const changedTodoList = new Array(todoList);
+		const changedTodoList = new Array(...todoList);
 		changedTodoList[index] = result;
 		setTodoList(changedTodoList);
 	};
@@ -89,6 +106,7 @@ const TodoList = props => {
 					<TodoListItem
 						index={index}
 						item={item}
+						length={todoList.length}
 						handleComplete={handleComplete}
 						handleChange={handleChange}
 						handleAddItem={handleAddItem}
