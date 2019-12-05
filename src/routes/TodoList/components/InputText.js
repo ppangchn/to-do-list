@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react';
-import { Input } from 'antd';
+import React, { useState, useEffect, Fragment } from 'react';
+import { Input, Button } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
+import { useMutation } from '@apollo/react-hooks';
 import * as PIXI from 'pixi.js';
+import { CREATE_TODOLIST_ITEM_BY_USER } from '../../../graphql/mutation/TodoList.mutation';
+import { GET_USER_DETAIL } from '../../../graphql/query/User.query';
 
 const StyledInputText = styled(Input)`
 	margin-left: 10px;
@@ -13,14 +17,21 @@ const StyledInputText = styled(Input)`
 	}
 `;
 
-const InputText = ({ index, showInput, value, onChange }) => {
-	const app = new PIXI.Application({ width: 1500, height: 25, backgroundColor: 0xffffff });
+const InputText = ({ match, index, length, showInput, defaultValue }) => {
+	const { id } = match.params;
+
+	const [createTodoListItemByUser, { loading }] = useMutation(CREATE_TODOLIST_ITEM_BY_USER);
+
+	const [value, setValue] = useState(defaultValue);
+
 	useEffect(() => {
 		const input = document.getElementById(`todo-list-item-${index}`).childNodes[1];
 		if (input && !showInput) input.parentNode.replaceChild(app.view, input);
 		addTextInput();
 		addMouseTrail();
 	});
+
+	const app = new PIXI.Application({ width: 1500, height: 25, backgroundColor: 0xffffff });
 
 	const addTextInput = () => {
 		const style = new PIXI.TextStyle({
@@ -117,15 +128,58 @@ const InputText = ({ index, showInput, value, onChange }) => {
 		);
 	};
 
-	return <StyledInputText id={`input-text-${index}`} value={value} onChange={onChange} />;
+	const handleChange = e => {
+		setValue(e.target.value);
+	};
+
+	const handleAddItem = async () => {
+		try {
+			await createTodoListItemByUser({
+				variables: { data: { description: value, isCompleted: false }, userId: id },
+				update(cache, { data: { createTodoListItemByUser } }) {
+					// get old data
+					const { user = {} } = cache.readQuery({
+						query: GET_USER_DETAIL,
+						variables: { where: { id } },
+					});
+					const { todoList = [] } = user;
+
+					// create new data
+					const newTodoItem = {
+						id: createTodoListItemByUser.id,
+						description: value,
+						isCompleted: false,
+					};
+					const newTodoList = [...todoList, newTodoItem];
+					user['todoList'] = newTodoList;
+					cache.writeQuery({
+						query: GET_USER_DETAIL,
+						data: { user },
+					});
+				},
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	return (
+		<Fragment>
+			<StyledInputText id={`input-text-${index}`} value={value} onChange={handleChange} />
+			{(index === length - 1 || length === 1) && (
+				<Button onClick={handleAddItem} loading={loading}>
+					Save
+				</Button>
+			)}
+		</Fragment>
+	);
 };
 
 InputText.propTypes = {
 	index: PropTypes.number,
-	value: PropTypes.string,
-	onChange: PropTypes.func,
+	length: PropTypes.number,
+	showInput: PropTypes.bool,
+	defaultValue: PropTypes.string,
 };
 
-InputText.defaultProps = { onChange: () => {} };
-
-export default InputText;
+export default withRouter(InputText);

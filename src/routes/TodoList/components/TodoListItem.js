@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Checkbox as ACheckbox, Button } from 'antd';
+import { List, Checkbox as ACheckbox } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import InputText from './InputText';
@@ -14,47 +14,28 @@ const Checkbox = styled(ACheckbox)`
 	align-items: center !important;
 `;
 
-const TodoListItem = ({
-	item,
-	index,
-	length,
-	isLoading,
-	handleComplete,
-	handleChange,
-	handleAddItem,
-}) => (
-	<List.Item>
-		<Item id={`todo-list-item-${index}`}>
-			<Checkbox checked={item.isCompleted} onChange={() => handleComplete(index)} />
-			<InputText
-				index={index}
-				showInput={index === length - 1 || length === 1}
-				value={item.description}
-				onChange={e => handleChange(e, index)}
-			/>
-		</Item>
-		{(index === length - 1 || length === 1) && (
-			<Button onClick={() => handleAddItem(item)} loading={isLoading}>
-				Save
-			</Button>
-		)}
-	</List.Item>
-);
+const TodoListItem = ({ item, index, length }) => {
+	const handleComplete = index => {};
+
+	return (
+		<List.Item>
+			<Item id={`todo-list-item-${index}`}>
+				<Checkbox checked={item.isCompleted} onChange={handleComplete} />
+				<InputText
+					index={index}
+					length={length}
+					showInput={index === length - 1 || length === 1}
+					defaultValue={item.description}
+				/>
+			</Item>
+		</List.Item>
+	);
+};
 
 TodoListItem.propTypes = {
 	item: PropTypes.object,
 	index: PropTypes.number,
 	length: PropTypes.number,
-	isLoading: PropTypes.bool,
-	handleComplete: PropTypes.func,
-	handleChange: PropTypes.func,
-	handleAddItem: PropTypes.func,
-};
-
-TodoListItem.defaultProps = {
-	handleComplete: () => {},
-	handleChange: () => {},
-	handleAddItem: () => {},
 };
 
 export default TodoListItem;

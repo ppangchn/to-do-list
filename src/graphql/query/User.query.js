@@ -8,6 +8,7 @@ export const GET_USER_DETAIL = gql`
 			username
 			password
 			todoList {
+				id
 				description
 				isCompleted
 			}
