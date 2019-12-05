@@ -7,8 +7,10 @@ import * as PIXI from 'pixi.js';
 const StyledInputText = styled(Input)`
 	margin-left: 10px;
 	border: none !important;
-	outline: none !important;
 	padding: 0 5px;
+	:focus {
+		box-shadow: none !important;
+	}
 `;
 
 const InputText = ({ index, showInput, value, onChange }) => {
