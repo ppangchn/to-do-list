@@ -14,7 +14,15 @@ const Checkbox = styled(ACheckbox)`
 	align-items: center !important;
 `;
 
-const TodoListItem = ({ item, index, length, handleComplete, handleChange, handleAddItem }) => (
+const TodoListItem = ({
+	item,
+	index,
+	length,
+	isLoading,
+	handleComplete,
+	handleChange,
+	handleAddItem,
+}) => (
 	<List.Item>
 		<Item id={`todo-list-item-${index}`}>
 			<Checkbox checked={item.isCompleted} onChange={() => handleComplete(index)} />
@@ -26,7 +34,9 @@ const TodoListItem = ({ item, index, length, handleComplete, handleChange, handl
 			/>
 		</Item>
 		{(index === length - 1 || length === 1) && (
-			<Button onClick={() => handleAddItem(item)}>Save</Button>
+			<Button onClick={() => handleAddItem(item)} loading={isLoading}>
+				Save
+			</Button>
 		)}
 	</List.Item>
 );
@@ -35,6 +45,7 @@ TodoListItem.propTypes = {
 	item: PropTypes.object,
 	index: PropTypes.number,
 	length: PropTypes.number,
+	isLoading: PropTypes.bool,
 	handleComplete: PropTypes.func,
 	handleChange: PropTypes.func,
 	handleAddItem: PropTypes.func,

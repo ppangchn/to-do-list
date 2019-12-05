@@ -121,7 +121,7 @@ const TodoList = props => {
 						</Fragment>
 					) : (
 						<Spin style={{ top: '4px', position: 'relative' }} />
-					)}{' '}
+					)}
 				</Username>
 				<Button
 					type="danger"
@@ -142,21 +142,24 @@ const TodoList = props => {
 				]}
 				handleSelect={handleSelect}
 			/>
-			<List
-				id="todo-list"
-				dataSource={todoList}
-				renderItem={(item, index) => (
-					<TodoListItem
-						index={index}
-						item={item}
-						length={todoList.length}
-						handleComplete={handleComplete}
-						handleChange={handleChange}
-						handleAddItem={handleAddItem}
-					/>
-				)}
-				pagination={{ hideOnSinglePage: true }}
-			/>
+			<Spin spinning={fetchUserLoading}>
+				<List
+					id="todo-list"
+					dataSource={todoList}
+					renderItem={(item, index) => (
+						<TodoListItem
+							index={index}
+							item={item}
+							length={todoList.length}
+							isLoading={loading}
+							handleComplete={handleComplete}
+							handleChange={handleChange}
+							handleAddItem={handleAddItem}
+						/>
+					)}
+					pagination={{ hideOnSinglePage: true }}
+				/>
+			</Spin>
 		</Container>
 	);
 };
