@@ -31,7 +31,7 @@ const InputText = ({ match, index, length, showInput, defaultValue }) => {
 		addMouseTrail();
 	});
 
-	const app = new PIXI.Application({ width: 1500, height: 25, backgroundColor: 0xffffff });
+	const app = new PIXI.Application({ width: 1700, height: 25, backgroundColor: 0xffffff });
 
 	const addTextInput = () => {
 		const style = new PIXI.TextStyle({
@@ -40,7 +40,7 @@ const InputText = ({ match, index, length, showInput, defaultValue }) => {
 			fill: ['#003EA8', '#005BF6'],
 			letterSpacing: 2,
 		});
-		const basicText = new PIXI.Text(value, style);
+		const basicText = new PIXI.Text(defaultValue, style);
 		basicText.x = 8;
 		basicText.y = 1;
 
@@ -149,6 +149,7 @@ const InputText = ({ match, index, length, showInput, defaultValue }) => {
 						id: createTodoListItemByUser.id,
 						description: value,
 						isCompleted: false,
+						__typename: 'TodoListItem',
 					};
 					const newTodoList = [...todoList, newTodoItem];
 					user['todoList'] = newTodoList;
