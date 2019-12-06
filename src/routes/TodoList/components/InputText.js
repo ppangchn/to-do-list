@@ -152,10 +152,9 @@ const InputText = ({ match, index, length, showInput, defaultValue }) => {
 						__typename: 'TodoListItem',
 					};
 					const newTodoList = [...todoList, newTodoItem];
-					user['todoList'] = newTodoList;
 					cache.writeQuery({
 						query: GET_USER_DETAIL,
-						data: { user },
+						data: { user: { ...user, todoList: newTodoList } },
 					});
 				},
 			});
