@@ -8,8 +8,13 @@ import App from './App';
 import './index.css';
 import 'antd/dist/antd.css';
 
+const uri =
+	process.env.NODE_ENV === 'production'
+		? process.env.GRAPHQL_PRODUCTION_ENDPOINT
+		: 'http://localhost:4000';
+
 const client = new ApolloClient({
-	uri: 'http://localhost:4000',
+	uri: uri,
 	cache: new InMemoryCache(),
 });
 
