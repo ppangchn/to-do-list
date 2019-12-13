@@ -10,7 +10,7 @@ import 'antd/dist/antd.css';
 
 const uri =
 	process.env.NODE_ENV === 'production'
-		? process.env.GRAPHQL_PRODUCTION_ENDPOINT
+		? 'https://us-central1-to-do-list-94a9c.cloudfunctions.net/api'
 		: 'http://localhost:4000';
 
 const client = new ApolloClient({
