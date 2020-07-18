@@ -9,7 +9,7 @@
 		"apollo-cache-inmemory": "^1.6.3",
 		"firebase-tools": "^7.9.0",
 		"graphql": "^14.5.8",
-		"lodash": "^4.17.15",
+		"lodash": "^4.17.19",
 		"pixi-text-input": "^1.0.4",
 		"pixi.js": "^5.2.0",
 		"react": "^16.12.0",
